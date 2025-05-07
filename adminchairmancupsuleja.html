@@ -1,23 +1,19 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Chairman Cup Admin</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>Chairman's Cup Admin</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      font-family: 'Roboto', sans-serif;
+      font-family: Arial, sans-serif;
       background: #f8f9fa;
       padding: 20px;
     }
     .container {
       max-width: 1200px;
       margin: auto;
-      background: none;
-      padding: 30px;
     }
     .fixture {
       border-top: 1px solid #ddd;
@@ -28,7 +24,6 @@
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
-      gap: 15px;
     }
     .team {
       display: flex;
@@ -38,16 +33,12 @@
     .team img {
       width: 50px;
       height: 50px;
-      object-fit: contain;
-      border-radius: 5px;
       border: 1px solid #ccc;
+      border-radius: 5px;
     }
     .score input {
-      width: 60px;
+      width: 50px;
       text-align: center;
-    }
-    table {
-      margin-top: 30px;
     }
     th {
       background: #007bff;
@@ -57,13 +48,13 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="mb-4">Suleja Coaches Chairman's Cup - Admin Panel</h1>
+    <h1 class="mb-4">Chairman's Cup Admin Panel</h1>
 
-    <h2>Add New Fixture</h2>
-    <div class="row g-2 mb-4">
-      <div class="col-md-4"><input type="text" id="teamA" class="form-control" placeholder="Team A Name" /></div>
+    <h2>Add Fixture</h2>
+    <div class="row g-3 mb-4">
+      <div class="col-md-4"><input type="text" id="teamA" class="form-control" placeholder="Team A" /></div>
       <div class="col-md-4"><input type="file" id="logoA" class="form-control" accept="image/*" /></div>
-      <div class="col-md-4"><input type="text" id="teamB" class="form-control" placeholder="Team B Name" /></div>
+      <div class="col-md-4"><input type="text" id="teamB" class="form-control" placeholder="Team B" /></div>
       <div class="col-md-4"><input type="file" id="logoB" class="form-control" accept="image/*" /></div>
       <div class="col-md-4"><input type="datetime-local" id="matchTime" class="form-control" /></div>
       <div class="col-md-4">
@@ -78,26 +69,52 @@
       </div>
     </div>
 
-    <h2>All Fixtures</h2>
-    <div id="fixtures"></div>
+    <div id="sections">
+      <div id="Quarter Final" class="mb-5">
+        <h2>Quarter Final</h2>
+        <div id="fixtures-Quarter Final"></div>
+        <h4>Standings</h4>
+        <table class="table table-bordered" id="standings-Quarter Final">
+          <thead>
+            <tr>
+              <th>Team</th><th>Played</th><th>Wins</th><th>Draws</th><th>Losses</th>
+              <th>GF</th><th>GA</th><th>GD</th><th>Points</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-    <h2>Standings</h2>
-    <table class="table table-bordered" id="standingsTable">
-      <thead>
-        <tr>
-          <th>Team</th>
-          <th>Played</th>
-          <th>Wins</th>
-          <th>Draws</th>
-          <th>Losses</th>
-          <th>GF</th>
-          <th>GA</th>
-          <th>GD</th>
-          <th>Points</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+      <div id="Semi Final" class="mb-5">
+        <h2>Semi Final</h2>
+        <div id="fixtures-Semi Final"></div>
+        <h4>Standings</h4>
+        <table class="table table-bordered" id="standings-Semi Final">
+          <thead>
+            <tr>
+              <th>Team</th><th>Played</th><th>Wins</th><th>Draws</th><th>Losses</th>
+              <th>GF</th><th>GA</th><th>GD</th><th>Points</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div id="Final">
+        <h2>Final</h2>
+        <div id="fixtures-Final"></div>
+        <h4>Standings</h4>
+        <table class="table table-bordered" id="standings-Final">
+          <thead>
+            <tr>
+              <th>Team</th><th>Played</th><th>Wins</th><th>Draws</th><th>Losses</th>
+              <th>GF</th><th>GA</th><th>GD</th><th>Points</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- Firebase -->
@@ -115,14 +132,12 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    const readImage = (input) => {
-      return new Promise(resolve => {
-        if (!input.files[0]) return resolve("");
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.readAsDataURL(input.files[0]);
-      });
-    };
+    const readImage = (input) => new Promise(resolve => {
+      if (!input.files[0]) return resolve("");
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.readAsDataURL(input.files[0]);
+    });
 
     async function addFixture() {
       const teamA = document.getElementById("teamA").value;
@@ -132,11 +147,10 @@
       const matchTime = document.getElementById("matchTime").value;
       const stage = document.getElementById("stage").value;
 
-      if (!teamA || !teamB || !matchTime) return alert("Please fill in all fields.");
+      if (!teamA || !teamB || !matchTime) return alert("Fill all fields.");
 
       await db.collection("fixtures").add({
-        teamA, teamB, logoA, logoB, matchTime, stage,
-        scoreA: null, scoreB: null
+        teamA, teamB, logoA, logoB, matchTime, stage, scoreA: null, scoreB: null
       });
 
       document.querySelectorAll("input").forEach(i => i.value = "");
@@ -150,68 +164,19 @@
     }
 
     function deleteFixture(id) {
-      if (confirm("Are you sure you want to delete this fixture?")) {
+      if (confirm("Delete this fixture?")) {
         db.collection("fixtures").doc(id).delete();
       }
     }
 
-    db.collection("fixtures").onSnapshot(snapshot => {
-      const fixturesEl = document.getElementById("fixtures");
-      fixturesEl.innerHTML = "";
-      const teamStats = {};
+    function renderStandings(stage, stats) {
+      const tbody = document.querySelector(`#standings-${stage} tbody`);
+      tbody.innerHTML = "";
 
-      snapshot.docs.forEach(doc => {
-        const f = doc.data();
-        const now = new Date();
-        const matchDate = new Date(f.matchTime);
-        const isMatchTimePassed = matchDate <= now;
-
-        const div = document.createElement("div");
-        div.className = "fixture";
-        div.innerHTML = `
-          <strong>${f.stage}</strong>
-          <div class="teams">
-            <div class="team"><img src="${f.logoA || ''}"><span>${f.teamA}</span></div>
-            <div class="score">
-              <input type="number" id="scoreA-${doc.id}" value="${f.scoreA ?? ''}"> :
-              <input type="number" id="scoreB-${doc.id}" value="${f.scoreB ?? ''}">
-            </div>
-            <div class="team"><span>${f.teamB}</span><img src="${f.logoB || ''}"></div>
-          </div>
-          <div><strong>Time:</strong> ${new Date(f.matchTime).toLocaleString()}</div>
-          <button class="btn btn-success btn-sm mt-2" onclick="updateFixture('${doc.id}')">Update Score</button>
-          <button class="btn btn-danger btn-sm mt-2 ms-2" onclick="deleteFixture('${doc.id}')">Delete Fixture</button>
-        `;
-        fixturesEl.appendChild(div);
-
-        // STATS calculation after match time passed
-        const addStats = (team, goalsFor, goalsAgainst, win, draw, loss) => {
-          if (!teamStats[team]) teamStats[team] = { played: 0, win: 0, draw: 0, loss: 0, gf: 0, ga: 0 };
-          const stats = teamStats[team];
-          stats.played += 1;
-          stats.gf += goalsFor;
-          stats.ga += goalsAgainst;
-          if (win) stats.win += 1;
-          else if (draw) stats.draw += 1;
-          else if (loss) stats.loss += 1;
-        };
-
-        if (f.scoreA != null && f.scoreB != null && isMatchTimePassed) {
-          const draw = f.scoreA === f.scoreB;
-          const winA = f.scoreA > f.scoreB;
-          const winB = f.scoreB > f.scoreA;
-
-          addStats(f.teamA, f.scoreA, f.scoreB, winA, draw, winB);
-          addStats(f.teamB, f.scoreB, f.scoreA, winB, draw, winA);
-        }
-      });
-
-      const table = document.querySelector("#standingsTable tbody");
-      table.innerHTML = "";
-      const rows = Object.entries(teamStats).map(([team, stats]) => {
-        const gd = stats.gf - stats.ga;
-        const points = stats.win * 3 + stats.draw;
-        return { team, ...stats, gd, points };
+      const rows = Object.entries(stats).map(([team, data]) => {
+        const gd = data.gf - data.ga;
+        const points = data.win * 3 + data.draw;
+        return { team, ...data, gd, points };
       });
 
       rows.sort((a, b) =>
@@ -220,21 +185,76 @@
         b.gf - a.gf
       );
 
-      rows.forEach(r => {
-        table.innerHTML += `
+      rows.forEach(row => {
+        tbody.innerHTML += `
           <tr>
-            <td>${r.team}</td>
-            <td>${r.played}</td>
-            <td>${r.win}</td>
-            <td>${r.draw}</td>
-            <td>${r.loss}</td>
-            <td>${r.gf}</td>
-            <td>${r.ga}</td>
-            <td>${r.gd}</td>
-            <td>${r.points}</td>
+            <td>${row.team}</td><td>${row.played}</td><td>${row.win}</td><td>${row.draw}</td>
+            <td>${row.loss}</td><td>${row.gf}</td><td>${row.ga}</td><td>${row.gd}</td><td>${row.points}</td>
           </tr>
         `;
       });
+    }
+
+    db.collection("fixtures").onSnapshot(snapshot => {
+      const stages = ["Quarter Final", "Semi Final", "Final"];
+      const statsByStage = {
+        "Quarter Final": {},
+        "Semi Final": {},
+        "Final": {}
+      };
+
+      stages.forEach(stage => {
+        document.getElementById(`fixtures-${stage}`).innerHTML = "";
+      });
+
+      const sortedDocs = snapshot.docs.sort((a, b) => {
+        const dateA = new Date(a.data().matchTime);
+        const dateB = new Date(b.data().matchTime);
+        return dateA - dateB;
+      });
+
+      sortedDocs.forEach(doc => {
+        const f = doc.data();
+        const stage = f.stage;
+        const container = document.getElementById(`fixtures-${stage}`);
+        if (!container) return;
+
+        const div = document.createElement("div");
+        div.className = "fixture";
+        div.innerHTML = `
+          <div class="teams">
+            <div class="team"><img src="${f.logoA}"><span>${f.teamA}</span></div>
+            <div class="score">
+              <input type="number" id="scoreA-${doc.id}" value="${f.scoreA ?? ''}"> :
+              <input type="number" id="scoreB-${doc.id}" value="${f.scoreB ?? ''}">
+            </div>
+            <div class="team"><span>${f.teamB}</span><img src="${f.logoB}"></div>
+          </div>
+          <div><strong>${new Date(f.matchTime).toLocaleString()}</strong></div>
+          <button class="btn btn-success btn-sm mt-2" onclick="updateFixture('${doc.id}')">Update</button>
+          <button class="btn btn-danger btn-sm mt-2 ms-2" onclick="deleteFixture('${doc.id}')">Delete</button>
+        `;
+        container.appendChild(div);
+
+        const isPast = f.scoreA !== null && f.scoreB !== null && new Date(f.matchTime) <= new Date();
+        if (isPast) {
+          const draw = f.scoreA === f.scoreB;
+          const winA = f.scoreA > f.scoreB;
+          const winB = f.scoreB > f.scoreA;
+
+          const add = (team, gf, ga, win, draw, loss) => {
+            if (!statsByStage[stage][team]) statsByStage[stage][team] = { played: 0, win: 0, draw: 0, loss: 0, gf: 0, ga: 0 };
+            const s = statsByStage[stage][team];
+            s.played++; s.gf += gf; s.ga += ga;
+            if (win) s.win++; else if (draw) s.draw++; else s.loss++;
+          };
+
+          add(f.teamA, f.scoreA, f.scoreB, winA, draw, winB);
+          add(f.teamB, f.scoreB, f.scoreA, winB, draw, winA);
+        }
+      });
+
+      stages.forEach(stage => renderStandings(stage, statsByStage[stage]));
     });
   </script>
 </body>
