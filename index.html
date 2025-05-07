@@ -56,6 +56,34 @@
       background: #007bff;
       color: white;
     }
+        /* Button Styling */
+        .donate-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: linear-gradient(45deg, #ff5722, #ff9800);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 5px 0 #c41c00;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* 3D Effect */
+        .donate-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 2px 0 #c41c00;
+        }
+
+        /* Hover Effect */
+        .donate-btn:hover {
+            background: linear-gradient(45deg, #ff9800, #ff5722);
+        }
   </style>
 </head>
 <body>
@@ -83,7 +111,10 @@
       <tbody></tbody>
     </table>
   </div>
-
+    <!-- Donate Button -->
+    <a href="login.html" target="_blank" class="donate-btn">
+        Login as Admin
+    </a>
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
